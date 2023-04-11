@@ -7,6 +7,8 @@ const { getFirestore, collection, addDoc, GeoPoint } = firestore
 const sgMail = require('@sendgrid/mail')
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
+const fetch = require("node-fetch")
+
 const firebaseConfig = {
   apiKey: "AIzaSyDKlGhb8voPdKxCfEI-7KC6zj9PoU7itUo",
   authDomain: "bitcoin-jungle-maps.firebaseapp.com",
@@ -51,6 +53,25 @@ exports.handler = async function (event, context) {
     return getError(400, 'Please select at least one accepted coin')
   }
 
+  if(inputData.bitcoinJungleUsername) {
+    const usernameCheck = await fetch("https://api.mainnet.bitcoinjungle.app/graphql", {
+      "headers": {
+        "content-type": "application/json",
+      },
+      "body": "{\"operationName\":\"userDefaultWalletId\",\"variables\":{\"username\":\"" + inputData.bitcoinJungleUsername + "\"},\"query\":\"query userDefaultWalletId($username: Username!) {\\n  recipientWalletId: userDefaultWalletId(username: $username)\\n}\"}",
+      "method": "POST"
+    });
+
+    if(usernameCheck.ok) {
+      const usernameData = await usernameCheck.json()
+      if(!usernameData.data || !usernameData.data.recipientWalletId) {
+        return getError(400, 'Bitcoin Jungle Username not found.')
+      } 
+    } else {
+      return getError(400, 'Unable to verify Bitcoin Jungle Username. Try again later or contact support.')
+    }
+  }
+
   const locationData = {
     approved: false,
     name: inputData.name,
@@ -58,6 +79,7 @@ exports.handler = async function (event, context) {
     acceptsLightning: !!inputData.acceptsLightning,
     acceptsLiquid: !!inputData.acceptsLiquid,
     latLong: geoPoint,
+    bitcoinJungleUsername: inputData.bitcoinJungleUsername || null,
   }
 
   const docRef = await addDoc(collection(db, "locations"), locationData)
