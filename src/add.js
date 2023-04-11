@@ -104,23 +104,23 @@ form.addEventListener('submit', async (e) => {
 
 	    const responseData = await response.json();
 
-		showMap.style.display = "block"
-		appleMap.style.display = "none"
-
-		if(map) {
-			map.destroy()
-		}
-		
-		clickAnnotation = null
-
 		submitButtonEl.style.display = "block"
-
-		form.reset()
 
 		if(!response.ok) {
 	    	alert(`Error! ${responseData.error}`)
 	    } else {
 			alert("This business has been added successfully. It will now be reviewed by an admin. Once approved, it will show on the map")
+
+			showMap.style.display = "block"
+			appleMap.style.display = "none"
+
+			if(map) {
+				map.destroy()
+			}
+			
+			clickAnnotation = null
+		
+			form.reset()
 	    }
 	} catch(e) {
 		alert(e)
