@@ -1,18 +1,4 @@
 import 'babel-polyfill'
-import { initializeApp } from "firebase/app"
-import { getFirestore, collection, addDoc, GeoPoint } from "firebase/firestore"; 
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDKlGhb8voPdKxCfEI-7KC6zj9PoU7itUo",
-  authDomain: "bitcoin-jungle-maps.firebaseapp.com",
-  projectId: "bitcoin-jungle-maps",
-  storageBucket: "bitcoin-jungle-maps.appspot.com",
-  messagingSenderId: "962016469889",
-  appId: "1:962016469889:web:f331a8687c201f86f4fe80"
-}
-
-const app = initializeApp(firebaseConfig)
-const db = getFirestore(app)
 
 const form = document.getElementById('add-form')
 const showMap = document.getElementById('show-map')
@@ -22,7 +8,6 @@ const longitudeEl = document.getElementById('longitude')
 const submitButtonEl = document.getElementById('submit-button')
 
 let clickAnnotation, map
-
 
 showMap.addEventListener('click', (e) => {
 	showMap.style.display = "none"
@@ -101,16 +86,6 @@ form.addEventListener('submit', async (e) => {
 		postData.acceptsLiquid = false
 	}
 
-	try {
-		postData.latLong = new GeoPoint(postData.latitude, postData.longitude)
-	} catch(e) {
-		alert(e)
-		submitButtonEl.style.display = "block"
-		return false
-	}
-
-	delete postData.latitude
-	delete postData.longitude
 
 	if(!postData.acceptsOnChain && !postData.acceptsLightning && !postData.acceptsLiquid) {
 		alert("Please select at least one accepted coin")
@@ -119,8 +94,15 @@ form.addEventListener('submit', async (e) => {
 	}
 
 	try {
-		const docRef = await addDoc(collection(db, "locations"), postData)
-		const sendEmail = await fetch("/api/notify")
+		const response = await fetch('/api/add', {
+	      method: 'POST',
+	      headers: {
+	        'Content-Type': 'application/json',
+	      },
+	      body: JSON.stringify(postData),
+	    })
+
+	    const responseData = await response.json();
 
 		showMap.style.display = "block"
 		appleMap.style.display = "none"
@@ -135,7 +117,11 @@ form.addEventListener('submit', async (e) => {
 
 		form.reset()
 
-		alert("This business has been added successfully. It will now be reviewed by an admin. Once approved, it will show on the map")
+		if(!response.ok) {
+	    	alert(`Error! ${responseData.error}`)
+	    } else {
+			alert("This business has been added successfully. It will now be reviewed by an admin. Once approved, it will show on the map")
+	    }
 	} catch(e) {
 		alert(e)
 		submitButtonEl.style.display = "block"
