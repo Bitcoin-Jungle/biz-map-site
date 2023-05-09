@@ -22,7 +22,7 @@ const getUserProvidedLocations = async () => {
         const data = doc.data()
 
         return {
-            username: null,
+            username: data.bitcoinJungleUsername,
             acceptsLightning: data.acceptsLightning,
             acceptsOnChain: data.acceptsOnChain,
             acceptsLiquid: data.acceptsLiquid,
