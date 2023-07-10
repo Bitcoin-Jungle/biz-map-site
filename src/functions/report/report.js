@@ -19,6 +19,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+}
+
 exports.handler = async function (event, context) {
   let inputData, html
 
@@ -67,9 +72,7 @@ exports.handler = async function (event, context) {
       return {
         statusCode: 200,
         body: JSON.stringify({success: true}),
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        }
+        headers: CORS_HEADERS,
       }
     })
     .catch((error) => {
@@ -78,9 +81,7 @@ exports.handler = async function (event, context) {
       return {
         statusCode: 200,
         body: JSON.stringify({success: true}),
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        }
+        headers: CORS_HEADERS,
       }
     })
 }
@@ -89,8 +90,6 @@ const getError = (code, error) => {
   return {
     statusCode: code, 
     body: JSON.stringify({error}),
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
+    headers: CORS_HEADERS,
   }
 }
