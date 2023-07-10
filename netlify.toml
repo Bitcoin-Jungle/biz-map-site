@@ -19,6 +19,6 @@
   status = 200
 
 [[headers]]
-  for = "/api/report"
+  for = "/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
