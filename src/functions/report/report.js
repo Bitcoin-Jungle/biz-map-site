@@ -67,6 +67,9 @@ exports.handler = async function (event, context) {
       return {
         statusCode: 200,
         body: JSON.stringify({success: true}),
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        }
       }
     })
     .catch((error) => {
@@ -75,8 +78,19 @@ exports.handler = async function (event, context) {
       return {
         statusCode: 200,
         body: JSON.stringify({success: true}),
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        }
       }
     })
 }
 
-const getError = (code, error) => {return {statusCode: code, body: JSON.stringify({error})}}
+const getError = (code, error) => {
+  return {
+    statusCode: code, 
+    body: JSON.stringify({error}),
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+    },
+  }
+}
