@@ -30,7 +30,7 @@ exports.handler = async function (event, context) {
   try {
     inputData = JSON.parse(event.body)
   } catch(err) {
-    return getError(400, 'POST Body must be JSON')
+    return getError(200, 'POST Body must be JSON')
   }
 
   if(!inputData.id) {
