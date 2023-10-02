@@ -83,12 +83,13 @@ exports.handler = async function (event, context) {
   }
 
   const docRef = await addDoc(collection(db, "locations"), locationData)
+  const newId = docRef.id
 
   const msg = {
     to: 'mapadd@bitcoinjungle.app',
     from: 'noreply@bitcoinjungle.app',
     subject: 'New Map Item Pending Approval',
-    html: 'Please visit <a href="' + process.env.URL_TO_VISIT + '">Cloud Firestore</a> to approve the new map pin submitted by a user (Name: ' + locationData.name + ').',
+    html: 'Please click <a href="https://maps.bitcoinjungle.app/api/approve?id=' + newId + '">here</a> to approve the new map pin submitted by a user (Name: ' + locationData.name + ' / ID: ' + newId + ').',
   }
 
   return sgMail.send(msg)
