@@ -85,11 +85,20 @@ exports.handler = async function (event, context) {
   const docRef = await addDoc(collection(db, "locations"), locationData)
   const newId = docRef.id
 
+  let html = `Please click <a href="https://maps.bitcoinjungle.app/api/approve?id=${newId}">here</a> to approve the new map pin submitted by a user.`
+  html += '<ul>'
+  html += `<li>ID: ${newId}</li>`
+  html += `<li>Name: ${locationData.name}</li>`
+  html += `<li>Latitude: ${inputData.latitude}</li>`
+  html += `<li>Longitude: ${inputData.longitude}</li>`
+  html += `<li>BJ Username: ${locationData.bitcoinJungleUsername || 'none'}`
+  html += '</ul>'
+
   const msg = {
     to: 'mapadd@bitcoinjungle.app',
     from: 'noreply@bitcoinjungle.app',
     subject: 'New Map Item Pending Approval',
-    html: 'Please click <a href="https://maps.bitcoinjungle.app/api/approve?id=' + newId + '">here</a> to approve the new map pin submitted by a user (Name: ' + locationData.name + ' / ID: ' + newId + ').',
+    html: html,
   }
 
   return sgMail.send(msg)
