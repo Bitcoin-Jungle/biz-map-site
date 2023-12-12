@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useLayoutEffect } from 'react'
 import { Map, Marker, FeatureVisibility } from 'mapkit-react'
 
 import Add from "./Add"
@@ -6,8 +6,21 @@ import Report from "./Report"
 
 import './App.css'
 
-function App() {
+const useWindowSize = () => {
+  const [size, setSize] = useState([0, 0]);
+  useLayoutEffect(() => {
+    function updateSize() {
+      setSize([window.innerWidth, window.innerHeight]);
+    }
+    window.addEventListener('resize', updateSize);
+    updateSize();
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+  return size;
+}
 
+function App() {
+  const [width, height] = useWindowSize()
   const [token, setToken] = useState("")
   const [region, setRegion] = useState({
     centerLatitude: 9.1549238,
@@ -27,6 +40,8 @@ function App() {
   const [showAddModal, setShowAddModal] = useState(false)
 
   const [reportItem, setReportItem] = useState(false)
+
+  const [showCategories, setShowCategories] = useState(false)
 
   const getToken = async () => {
     const res = await fetch("/api/token")
@@ -96,6 +111,8 @@ function App() {
     if(addPinToMap) {
       setNewPinCoordinates(obj.toCoordinates())
       setShowAddModal(true)
+    } else {
+      setShowCategories(false)
     }
   }
 
@@ -121,8 +138,11 @@ function App() {
       </div>
       <div>
         <main style={{width: "100vw", height: "100vh"}}>
-          {categories.length > 0 &&
+          {categories.length > 0 && (showCategories || width > 700) ?
             <div id="categories">
+              {showCategories &&
+                <a onClick={() => { setShowCategories(false) }}>X</a>
+              }
               <ul className="w-48 text-sm text-gray-900 rounded-lg">
                 {categories.map((el) => {
                   return (
@@ -136,6 +156,10 @@ function App() {
                   )
                 })}
               </ul>
+            </div>
+          : 
+            <div id="categoriesSlider">
+              <a onClick={() => { setShowCategories(true) }}>&gt;</a>
             </div>
           }
 
