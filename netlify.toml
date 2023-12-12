@@ -1,0 +1,24 @@
+[build]
+  command = "npm run build"
+  functions = "functions"
+  NODE_ENV = "18"
+  publish = "/dist"
+
+[dev]
+  port = 18080
+  publish = "/dist"
+  command = "npm run dev"
+
+[production]
+  publish = "/dist"
+  command = "npm run build"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
