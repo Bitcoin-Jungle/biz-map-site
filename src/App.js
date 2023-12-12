@@ -165,7 +165,7 @@ function App() {
 
           {addPinToMap &&
             <div id="topHeader">
-              <p>Select location on map to add business</p>
+              <p className="text-lg font-bold">Select location on map to add business</p>
             </div>
           }
 
@@ -186,7 +186,7 @@ function App() {
                     latitude={el.coordinates.latitude}
                     longitude={el.coordinates.longitude}
                     title={el.name}
-                    titleVisibility={region.latitudeDelta > 0.05 ? FeatureVisibility.Visible : FeatureVisibility.Adaptive} 
+                    titleVisibility={region.latitudeDelta < 0.05 ? FeatureVisibility.Hidden : FeatureVisibility.Adaptive} 
                     visible={shouldRenderMapItem(el)}
                     onSelect={() => { selectItem(el.id) } }
                     onDeselect={() => { selectItem(null) } }
