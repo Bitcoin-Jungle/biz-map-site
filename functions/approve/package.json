@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "firebase": "^9.6.8"
+    "axios": "^1.6.2"
   }
 }

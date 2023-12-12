@@ -1,44 +1,38 @@
-const firebaseApp = require("firebase/app")
-const initializeApp = firebaseApp.initializeApp
-
-const firestore = require("firebase/firestore")
-const { getFirestore, doc, updateDoc } = firestore
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDKlGhb8voPdKxCfEI-7KC6zj9PoU7itUo",
-  authDomain: "bitcoin-jungle-maps.firebaseapp.com",
-  projectId: "bitcoin-jungle-maps",
-  storageBucket: "bitcoin-jungle-maps.appspot.com",
-  messagingSenderId: "962016469889",
-  appId: "1:962016469889:web:f331a8687c201f86f4fe80"
-}
-
-const app = initializeApp(firebaseConfig)
-const db = getFirestore(app)
+const axios = require("axios")
 
 exports.handler = async function (event, context) {
   const id = event.queryStringParameters.id
+  const key = event.queryStringParameters.key
+
+  if(!key) {
+    return getError(400, 'Key is required')
+  }
+
+  if(key !== process.env.APPROVE_KEY) {
+    return getError(400, 'Invalid key')
+  }
 
   if(!id) {
     return getError(400, 'ID is required')
   }
 
-  try {
-    const docRef = doc(db, "locations", id)
+  const res = await axios({
+    "method": "PUT",
+    "url": `https://maps-api.bitcoinjungle.app/api/businesses/${id}`,
+    "headers": {
+      "Authorization": `Bearer ${process.env.STRAPI_API_KEY}`,
+      "Content-Type": "application/json; charset=utf-8"
+    },
+    "data": {
+      data: {
+        publishedAt: new Date().toISOString(),
+      }
+    },
+  })
 
-    if(!docRef) {
-      return getError(400, 'document not found')
-    }
- 
-    const res = await updateDoc(docRef, {approved: true});
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({success: true}),
-    }
-  } catch(e) {
-    console.log(e)
-    return getError(400, 'error updating document')
+  return {
+    statusCode: 200,
+    body: JSON.stringify({success: true, message: "This business has now been approved and is visible on the map."}),
   }
 }
 

@@ -1,29 +1,10 @@
-const firebaseApp = require("firebase/app")
-const initializeApp = firebaseApp.initializeApp
-
-const firestore = require("firebase/firestore")
-const { getFirestore, collection, addDoc, GeoPoint } = firestore
-
 const sgMail = require('@sendgrid/mail')
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
-const fetch = require("node-fetch")
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDKlGhb8voPdKxCfEI-7KC6zj9PoU7itUo",
-  authDomain: "bitcoin-jungle-maps.firebaseapp.com",
-  projectId: "bitcoin-jungle-maps",
-  storageBucket: "bitcoin-jungle-maps.appspot.com",
-  messagingSenderId: "962016469889",
-  appId: "1:962016469889:web:f331a8687c201f86f4fe80"
-}
-
-const app = initializeApp(firebaseConfig)
-const db = getFirestore(app)
+const axios = require("axios")
 
 exports.handler = async function (event, context) {
   let inputData
-  let geoPoint
 
   try {
     inputData = JSON.parse(event.body)
@@ -35,63 +16,57 @@ exports.handler = async function (event, context) {
     return getError(400, 'Name is required')
   }
 
-  if(!parseFloat(inputData.latitude)) {
+  if(!parseFloat(inputData.coordinates.latitude)) {
     return getError(400, 'Invalid Latitude Coordinates')
   }
 
-  if(!parseFloat(inputData.longitude)) {
+  if(!parseFloat(inputData.coordinates.longitude)) {
     return getError(400, 'Invalid Longitude Coordinates')
   }
 
-  try {
-    geoPoint = new GeoPoint(inputData.latitude, inputData.longitude)
-  } catch(err) {
-    return getError(400, 'Invalid Coordinates')
+  if(!inputData.categories.length) {
+    return getError(400, 'At least one cateogry is required')
   }
 
-  if(!inputData.acceptsOnChain && !inputData.acceptsLightning && !inputData.acceptsLiquid) {
-    return getError(400, 'Please select at least one accepted coin')
-  }
-
-  if(inputData.bitcoinJungleUsername) {
-    const usernameCheck = await fetch("https://api.mainnet.bitcoinjungle.app/graphql", {
-      "headers": {
-        "content-type": "application/json",
+  const postData = { 
+    data: {
+      approved: false,
+      Name: inputData.name,
+      Location: {
+        coordinates: {
+          lat: inputData.coordinates.latitude,
+          lng: inputData.coordinates.longitude,
+        }
       },
-      "body": "{\"operationName\":\"userDefaultWalletId\",\"variables\":{\"username\":\"" + inputData.bitcoinJungleUsername + "\"},\"query\":\"query userDefaultWalletId($username: Username!) {\\n  recipientWalletId: userDefaultWalletId(username: $username)\\n}\"}",
-      "method": "POST"
-    });
-
-    if(usernameCheck.ok) {
-      const usernameData = await usernameCheck.json()
-      if(!usernameData.data || !usernameData.data.recipientWalletId) {
-        return getError(400, 'Bitcoin Jungle Username not found.')
-      } 
-    } else {
-      return getError(400, 'Unable to verify Bitcoin Jungle Username. Try again later or contact support.')
-    }
+      categories: inputData.categories,
+      Phone: inputData.phone,
+      Website: inputData.website,
+      Description: inputData.description,
+      publishedAt: null,
+    },
   }
 
-  const locationData = {
-    approved: false,
-    name: inputData.name,
-    acceptsOnChain: !!inputData.acceptsOnChain,
-    acceptsLightning: !!inputData.acceptsLightning,
-    acceptsLiquid: !!inputData.acceptsLiquid,
-    latLong: geoPoint,
-    bitcoinJungleUsername: inputData.bitcoinJungleUsername || null,
-  }
+  const res = await axios({
+    "method": "POST",
+    "url": "https://maps-api.bitcoinjungle.app/api/businesses",
+    "headers": {
+      "Authorization": `Bearer ${process.env.STRAPI_API_KEY}`,
+      "Content-Type": "application/json; charset=utf-8"
+    },
+    "data": postData,
+  })
 
-  const docRef = await addDoc(collection(db, "locations"), locationData)
-  const newId = docRef.id
+  const newId = res.data.id
 
-  let html = `Please click <a href="https://maps.bitcoinjungle.app/api/approve?id=${newId}">here</a> to approve the new map pin submitted by a user.`
+  let html = `Please click <a href="https://maps.bitcoinjungle.app/api/approve?id=${newId}&key=${process.env.APPROVE_KEY}">here</a> to approve the new map pin submitted by a user.`
   html += '<ul>'
   html += `<li>ID: ${newId}</li>`
-  html += `<li>Name: ${locationData.name}</li>`
-  html += `<li>Latitude: ${inputData.latitude}</li>`
-  html += `<li>Longitude: ${inputData.longitude}</li>`
-  html += `<li>BJ Username: ${locationData.bitcoinJungleUsername || 'none'}`
+  html += `<li>Name: ${postData.data.Name}</li>`
+  html += `<li>Latitude: ${postData.data.Location.coordinates.lat}</li>`
+  html += `<li>Longitude: ${postData.data.Location.coordinates.lng}</li>`
+  html += `<li>Phone: ${postData.data.Phone}</li>`
+  html += `<li>Website: ${postData.data.Website}</li>`
+  html += `<li>Description: ${postData.data.Description}</li>`
   html += '</ul>'
 
   const msg = {

@@ -10,7 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "@sendgrid/mail": "^7.6.2",
-    "firebase": "^9.6.8",
-    "node-fetch": "^2.6.9"
+    "axios": "^1.6.2"
   }
 }
