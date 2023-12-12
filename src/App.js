@@ -123,13 +123,13 @@ function App() {
         <main style={{width: "100vw", height: "100vh"}}>
           {categories.length > 0 &&
             <div id="categories">
-              <ul className="w-96">
+              <ul className="w-48 text-sm text-gray-900 rounded-lg">
                 {categories.map((el) => {
                   return (
                     <li 
                       key={el.id} 
                       onClick={() => { selectCategory(el.id) } }
-                      className={`w-full p-4 ${(selectedCategories.indexOf(el.id) !== -1 ? ' rounded-lg bg-green-500 text-primary-600' : '')}`}
+                      className={`w-full text-gray-900 px-4 py-2 border-b border-gray-400 ${(selectedCategories.indexOf(el.id) !== -1 ? 'bg-orange-300' : '')}`}
                     >
                       {el.category}
                     </li>
@@ -153,6 +153,7 @@ function App() {
               onRegionChangeEnd={handleRegionChange}
               initialRegion={region}
               onClick={handleNewPin}
+              showsMapTypeControl={false}
             >
               {mapData.map((el) => {
                 return (
@@ -183,15 +184,35 @@ function App() {
 
           {selectedItem &&
             <div id="details">
-              <h3><b>{selectedItem.name}</b></h3>
-              <p>Phone: {selectedItem.phone}</p>
-              <p>Website: {selectedItem.website}</p>
-              <p>Categories: {selectedItem.categories.map((el) => el.name).join(', ')}</p>
-              <p>Description: {selectedItem.description}</p>
-
-              <button onClick={() => {setReportItem(selectedItem)}} className="mt-3 inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm text-white font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-red-500 sm:mt-0 sm:w-auto">
-                Report
-              </button>
+              <ul className="w-96 text-sm text-gray-900 rounded-lg">
+                <li className="w-full text-lg text-gray-900 px-4 py-2 border-b border-gray-400">
+                  <b>{selectedItem.name}</b>
+                </li>
+                <li className="w-full text-gray-900 px-4 py-2 border-b border-gray-400">
+                  <b>Categories </b>
+                  {selectedItem.categories.map((el) => el.name).join(', ')}
+                </li>
+                <li className="w-full text-gray-900 px-4 py-2 border-b border-gray-400">
+                  <b>Phone </b>
+                  {selectedItem.phone}
+                </li>
+                <li className="w-full text-gray-900 px-4 py-2 border-b border-gray-400">
+                  <b>Website </b>
+                  <a target="_blank" href={selectedItem.website}>
+                    {selectedItem.website.substr(0, 30)}
+                  </a>
+                </li>
+                <li className="w-full text-gray-900 px-4 py-2 border-b border-gray-400">
+                  <b>Description </b>
+                  <br />
+                  {selectedItem.description}
+                </li>
+                <li className="w-full text-gray-900 px-4 py-2 border-b border-gray-400">
+                  <button onClick={() => {setReportItem(selectedItem)}} className="mt-3 inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm text-white font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-red-500 sm:mt-0 sm:w-auto">
+                    Report
+                  </button>
+                </li>
+              </ul>
             </div>
           }
         </main>
