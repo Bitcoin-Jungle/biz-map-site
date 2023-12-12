@@ -2,15 +2,15 @@
   command = "npm run build"
   functions = "functions"
   NODE_ENV = "18"
-  publish = "/dist"
+  publish = "/build"
 
 [dev]
   port = 18080
-  publish = "/dist"
+  publish = "/build"
   command = "npm run dev"
 
 [production]
-  publish = "/dist"
+  publish = "/build"
   command = "npm run build"
 
 [[redirects]]
