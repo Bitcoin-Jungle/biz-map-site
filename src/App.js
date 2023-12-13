@@ -159,13 +159,13 @@ function App() {
             <a onClick={() => { setShowCategories(true) }}>&gt;</a>
           </div>
         }
-
-        {addPinToMap &&
-          <div id="topHeader">
-            <p className="text-lg font-bold">Select location on map to add business</p>
-          </div>
-        }
       </div>
+      
+      {addPinToMap &&
+        <div id="topHeader">
+          <p className="text-lg font-bold">Select location on map to add business</p>
+        </div>
+      }
       <div>
         <main style={{width: "100vw", height: "100vh"}}>
           {token.length > 0 && 
