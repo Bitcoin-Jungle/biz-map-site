@@ -1,6 +1,7 @@
 const axios = require("axios")
 
 const CACHE_HEADERS = {
+  "Netlify-Vary": "query=locale",
   "Netlify-CDN-Cache-Control": "public, max-age=0, stale-while-revalidate=604800",
   "Cache-Control": "public, max-age=300",
   'Access-Control-Allow-Origin': '*',
