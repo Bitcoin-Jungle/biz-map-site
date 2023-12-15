@@ -1,5 +1,12 @@
 const axios = require("axios")
 
+const CACHE_HEADERS = {
+  "Netlify-CDN-Cache-Control": "public, max-age=0, stale-while-revalidate=604800",
+  "Cache-Control": "public, max-age=300",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+}
+
 const getLocale = (locale) => {
   if(!locale) {
     return "en"
@@ -80,5 +87,6 @@ exports.handler = async function (event, context) {
   return {
     statusCode: 200,
     body: JSON.stringify(output),
+    headers: CACHE_HEADERS,
   }
 }
