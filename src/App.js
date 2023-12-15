@@ -185,7 +185,7 @@ function App() {
                     latitude={el.coordinates.latitude}
                     longitude={el.coordinates.longitude}
                     title={el.name}
-                    titleVisibility={region.latitudeDelta < 0.05 ? FeatureVisibility.Hidden : FeatureVisibility.Adaptive} 
+                    titleVisibility={region.latitudeDelta < 0.05 ? FeatureVisibility.Adaptive : FeatureVisibility.Hidden} 
                     visible={shouldRenderMapItem(el)}
                     onSelect={() => { selectItem(el.id) } }
                     onDeselect={() => { selectItem(null) } }
