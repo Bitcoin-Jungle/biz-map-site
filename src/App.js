@@ -4,6 +4,9 @@ import { Map, Marker, FeatureVisibility } from 'mapkit-react'
 import Add from "./Add"
 import Report from "./Report"
 
+import { getLanguage } from "./utils"
+import { localizeText } from "./lang"
+
 import './App.css'
 
 const useWindowSize = () => {
@@ -43,6 +46,8 @@ function App() {
 
   const [showCategories, setShowCategories] = useState(false)
 
+  const localized = localizeText(getLanguage())
+
   const getToken = async () => {
     const res = await fetch("/api/token")
     const token = await res.text()
@@ -51,7 +56,7 @@ function App() {
   }
 
   const getMapData = async () => {
-    const res = await fetch("/api/list")
+    const res = await fetch(`/api/list?locale=${getLanguage()}`)
     const data = await res.json()
 
     setCategories(data.categories)
@@ -136,7 +141,7 @@ function App() {
         <header>
           <a href="https://bitcoinjungle.app" target="_blank">
             <img src="https://storage.googleapis.com/bitcoin-jungle-branding/logo/web/logo-web.png" />
-            <span>Business Map</span>
+            <span>{localized.title}</span>
           </a>
         </header>
         {categories.length > 0 && (showCategories || width > 700) ?
@@ -160,7 +165,7 @@ function App() {
                 onClick={() => { selectCategory(null) }}
                 className={`w-full text-gray-900 px-4 py-2 border-b border-gray-400 ${(selectedCategories.indexOf(null) !== -1 ? 'bg-orange-300' : '')}`}
               >
-                Uncategorized
+                {localized.uncategorized}
               </li>
             </ul>
           </div>
@@ -173,7 +178,7 @@ function App() {
       
       {addPinToMap &&
         <div id="topHeader">
-          <p className="text-lg font-bold">Select location on map to add business</p>
+          <p className="text-lg font-bold">{localized.addPrompt}</p>
         </div>
       }
       <div>
@@ -208,7 +213,7 @@ function App() {
                   key="new"
                   latitude={newPinCoordinates.latitude}
                   longitude={newPinCoordinates.longitude}
-                  title="Add Business Here"
+                  title={localized.addPinTitle}
                   color="blue"
                 />
               }
@@ -222,29 +227,29 @@ function App() {
                 <b>{selectedItem.name}</b>
               </li>
               <li className="w-full text-gray-900 px-4 py-2 border-b border-gray-400">
-                <b>Categories </b>
+                <b>{localized.categories} </b>
                 {selectedItem.categories.map((el) => el.name).join(', ')}
               </li>
               <li className="w-full text-gray-900 px-4 py-2 border-b border-gray-400">
-                <b>Phone </b>
+                <b>{localized.phone} </b>
                 <a href={`tel:${selectedItem.phone}`}>
                   {selectedItem.phone}
                 </a>
               </li>
               <li className="w-full text-gray-900 px-4 py-2 border-b border-gray-400">
-                <b>Website </b>
+                <b>{localized.website} </b>
                 <a target="_blank" href={selectedItem.website}>
                   {selectedItem.website ? selectedItem.website.substr(0, 30) : ""}
                 </a>
               </li>
               <li className="w-full text-gray-900 px-4 py-2 border-b border-gray-400">
-                <b>Description </b>
+                <b>{localized.description} </b>
                 <br />
                 {selectedItem.description}
               </li>
               <li className="w-full text-gray-900 px-4 py-2 border-b border-gray-400">
                 <button onClick={() => {setReportItem(selectedItem)}} className="mt-3 inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm text-white font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-red-500 sm:mt-0 sm:w-auto">
-                  Report
+                  {localized.report}
                 </button>
               </li>
             </ul>
@@ -261,13 +266,14 @@ function App() {
           </a>
           <div style={{height: "5px"}}>&nbsp;</div>
           <button onClick={() => { setAddPinToMap(true) }} className="shadow bg-purple-500 focus:shadow-outline focus:outline-none text-white font-bold py-1 px-1 rounded">
-            Add to Map
+            {localized.addToMap}
           </button>
         </footer>
       </div>
 
       {showAddModal &&
         <Add
+          localized={localized}
           categories={categories}
           newPinCoordinates={newPinCoordinates}
           handleCancel={() => {
@@ -279,6 +285,7 @@ function App() {
 
       {reportItem &&
         <Report
+          localized={localized}
           item={reportItem}
           handleCancel={() => {
             setReportItem(false)

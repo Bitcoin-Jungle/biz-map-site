@@ -3,7 +3,7 @@ import Select from 'react-select'
 
 import Modal from "./Modal"
 
-function Add({categories, newPinCoordinates, handleCancel}) {
+function Add({localized, categories, newPinCoordinates, handleCancel}) {
   const [loading, setLoading] = useState(false)
   const [name, setName] = useState("")
   const [selectedCategories, setSelectedCategories] = useState([])
@@ -54,13 +54,13 @@ function Add({categories, newPinCoordinates, handleCancel}) {
       <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
         <div className="">
           <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-            <h3 className="text-base font-semibold leading-6 text-gray-900" id="modal-title">Add Business To Map</h3>
+            <h3 className="text-base font-semibold leading-6 text-gray-900" id="modal-title">{localized.addToMap}</h3>
             <div className="mt-2">
               <form className="w-full max-w-lg" id="add-form" onSubmit={handleAdd}>
                 <div className="flex flex-wrap -mx-3 mb-6">
                   <div className="w-full px-3">
                     <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="name">
-                      Business Name
+                      {localized.bizName}
                     </label>
                     <input onChange={(e) => { setName(e.target.value) }} className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" name="name" type="text" />
                   </div>
@@ -68,7 +68,7 @@ function Add({categories, newPinCoordinates, handleCancel}) {
                 <div className="flex flex-wrap -mx-3 mb-6">
                   <div className="w-full px-3">
                     <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="categories">
-                      Categories
+                      {localized.categories}
                     </label>
                     <Select 
                       options={
@@ -87,7 +87,7 @@ function Add({categories, newPinCoordinates, handleCancel}) {
                 <div className="flex flex-wrap -mx-3 mb-6">
                   <div className="w-full px-3">
                     <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="phone">
-                      Phone (optional)
+                      {localized.bizPhone} ({localized.optional})
                     </label>
                     <input onChange={(e) => { setPhone(e.target.value) }} className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" name="phone" type="text" />
                   </div>
@@ -95,7 +95,7 @@ function Add({categories, newPinCoordinates, handleCancel}) {
                 <div className="flex flex-wrap -mx-3 mb-6">
                   <div className="w-full px-3">
                     <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="website">
-                      Website (optional)
+                      {localized.bizWebsite} ({localized.optional})
                     </label>
                     <input onChange={(e) => { setWebsite(e.target.value) }} className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" name="website" type="text" />
                   </div>
@@ -103,7 +103,7 @@ function Add({categories, newPinCoordinates, handleCancel}) {
                 <div className="flex flex-wrap -mx-3 mb-6">
                   <div className="w-full px-3">
                     <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="description">
-                      Description (optional)
+                      {localized.bizDescription} ({localized.optional})
                     </label>
                     <textarea onChange={(e) => { setDescription(e.target.value) }} className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" name="description" type="text" />
                   </div>
@@ -124,9 +124,9 @@ function Add({categories, newPinCoordinates, handleCancel}) {
           </div>
         }
         <button type="button" disabled={loading} onClick={handleAdd} className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto">
-          Add To Map
+          {localized.addToMap}
         </button>
-        <button type="button" disabled={loading} onClick={handleCancel} className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">Cancel</button>
+        <button type="button" disabled={loading} onClick={handleCancel} className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">{localized.cancel}</button>
       </div>
     </Modal>
   )

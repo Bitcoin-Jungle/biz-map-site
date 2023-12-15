@@ -1,19 +1,49 @@
 const axios = require("axios")
 
+const getLocale = (locale) => {
+  if(!locale) {
+    return "en"
+  }
+
+  if(locale.indexOf('en') === 0) {
+    return "en"
+  }
+
+  if(locale.indexOf('es') === 0) {
+    return "es-CR"
+  }
+
+  return "en"
+}
+
 exports.handler = async function (event, context) {
+  let locale = getLocale(event.queryStringParameters.locale)
 
   const categoriesData = await axios({
-    "method": "GET",
-    "url": "https://maps-api.bitcoinjungle.app/api/categories",
-    "headers": {
+    method: "GET",
+    url: `https://maps-api.bitcoinjungle.app/api/categories`,
+    params: {
+      locale,
+      pagination: {
+        pageSize: 100,
+      }
+    },
+    headers: {
       "Authorization": `Bearer ${process.env.STRAPI_API_KEY}`
     }
   })
   
   const locationsData = await axios({
-    "method": "GET",
-    "url": "https://maps-api.bitcoinjungle.app/api/businesses?populate[0]=categories",
-    "headers": {
+    method: "GET",
+    url: "https://maps-api.bitcoinjungle.app/api/businesses",
+    params: {
+      locale,
+      pagination: {
+        pageSize: 10000,
+      },
+      populate: ["categories"],
+    },
+    headers: {
       "Authorization": `Bearer ${process.env.STRAPI_API_KEY}`
     }
   })
