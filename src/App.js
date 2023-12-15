@@ -228,7 +228,7 @@ function App() {
               </li>
               <li className="w-full text-gray-900 px-4 py-2 border-b border-gray-400">
                 <b>{localized.categories} </b>
-                {selectedItem.categories.map((el) => el.name).join(', ')}
+                {selectedItem.categories.filter((el) => categories.find(cat => cat.category === el.name)).map((el) => el.name).join(', ')}
               </li>
               <li className="w-full text-gray-900 px-4 py-2 border-b border-gray-400">
                 <b>{localized.phone} </b>
