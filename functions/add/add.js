@@ -56,7 +56,7 @@ exports.handler = async function (event, context) {
     "data": postData,
   })
 
-  const newId = res.data.id
+  const newId = res.data.data.id
 
   let html = `Please click <a href="https://maps.bitcoinjungle.app/api/approve?id=${newId}&key=${process.env.APPROVE_KEY}">here</a> to approve the new map pin submitted by a user.`
   html += '<ul>'
