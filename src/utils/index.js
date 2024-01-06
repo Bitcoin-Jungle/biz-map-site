@@ -8,3 +8,14 @@ export const getLanguage = () => {
   
   return navigator.language || navigator.userLanguage || 'en'
 }
+
+export const isFromBJ = () => {
+  const params = (new URL(document.location)).searchParams;
+  const key = params.get("fromBJ");
+
+  if(key && key.length > 0) {
+    return true
+  }
+
+  return false
+}

@@ -4,7 +4,7 @@ import { Map, Marker, FeatureVisibility } from 'mapkit-react'
 import Add from "./Add"
 import Report from "./Report"
 
-import { getLanguage } from "./utils"
+import { getLanguage, isFromBJ } from "./utils"
 import { localizeText } from "./lang"
 
 import './App.css'
@@ -138,12 +138,14 @@ function App() {
   return (
     <div id="App">
       <div id="header">
-        <header>
-          <a href="https://bitcoinjungle.app" target="_blank">
-            <img src="https://storage.googleapis.com/bitcoin-jungle-branding/logo/web/logo-web.png" />
-            <span>{localized.title}</span>
-          </a>
-        </header>
+        {!isFromBJ() &&
+          <header>
+            <a href="https://bitcoinjungle.app" target="_blank">
+              <img src="https://storage.googleapis.com/bitcoin-jungle-branding/logo/web/logo-web.png" />
+              <span>{localized.title}</span>
+            </a>
+          </header>
+        }
         {categories.length > 0 && (showCategories || width > 700) ?
           <div id="categories">
             {showCategories &&
