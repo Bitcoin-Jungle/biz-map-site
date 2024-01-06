@@ -260,13 +260,17 @@ function App() {
       </div>
       <div id="footer">
         <footer>
-          <a href="https://apps.apple.com/us/app/bitcoin-jungle/id1600313979">
-            <img src="https://pay.bitcoinjungle.app/apple-app-store.png" />
-          </a>
-          <a href="https://play.google.com/store/apps/details?id=app.bitcoinjungle.mobile">
-            <img src="https://pay.bitcoinjungle.app/google-play-badge.png" />
-          </a>
-          <div style={{height: "5px"}}>&nbsp;</div>
+          {!isFromBJ() && 
+            <div>
+              <a href="https://apps.apple.com/us/app/bitcoin-jungle/id1600313979">
+                <img src="https://pay.bitcoinjungle.app/apple-app-store.png" />
+              </a>
+              <a href="https://play.google.com/store/apps/details?id=app.bitcoinjungle.mobile">
+                <img src="https://pay.bitcoinjungle.app/google-play-badge.png" />
+              </a>
+              <div style={{height: "5px"}}>&nbsp;</div>
+            </div>
+          }
           <button onClick={() => { setAddPinToMap(true) }} className="shadow bg-purple-500 focus:shadow-outline focus:outline-none text-white font-bold py-1 px-1 rounded">
             {localized.addToMap}
           </button>
