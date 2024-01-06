@@ -1,3 +1,10 @@
 export const getLanguage = () => {
-  return navigator.language || navigator.userLanguage || 'en-US'
+  const params = (new URL(document.location)).searchParams;
+  const key = params.get("lang");
+
+  if(key && key.length > 0 && key !== "DEFAULT") {
+    return key
+  }
+  
+  return navigator.language || navigator.userLanguage || 'en'
 }
