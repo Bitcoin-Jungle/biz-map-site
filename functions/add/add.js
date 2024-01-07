@@ -216,6 +216,21 @@ exports.handler = async function (event, context) {
   html += `<li>Phone: ${postData.data.Phone}</li>`
   html += `<li>Website: ${postData.data.Website}</li>`
   html += `<li>Description: ${postData.data.Description}</li>`
+  html += `<li>Categories: ${finalCategories.map((categoryId => {
+    const enCat = categories.en.find((el) => el.id == categoryId)
+
+    if(enCat) {
+      return enCat.category
+    }
+
+    const esCat = categories.es.find((el) => el.id == categoryId)
+
+    if(esCat) {
+      return esCat.category
+    }
+
+    return ''
+  })).join(', ')}`
   html += '</ul>'
 
   const msg = {
