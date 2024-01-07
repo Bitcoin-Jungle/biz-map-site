@@ -103,7 +103,7 @@ function Add({localized, categories, newPinCoordinates, handleCancel}) {
                 <div className="flex flex-wrap -mx-3 mb-6">
                   <div className="w-full px-3">
                     <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="description">
-                      {localized.bizDescription} ({localized.optional})
+                      {localized.description} ({localized.optional})
                     </label>
                     <textarea onChange={(e) => { setDescription(e.target.value) }} className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" name="description" type="text" />
                   </div>

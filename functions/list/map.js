@@ -1,5 +1,7 @@
 const axios = require("axios")
 
+const strapi_api_key = process.env.STRAPI_API_KEY
+
 const esCats = [
 	{
 	    "id": 13,

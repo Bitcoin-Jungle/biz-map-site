@@ -3,6 +3,105 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 const axios = require("axios")
 
+const es = [
+  {
+      "id": 13,
+      "category": "Actividades TurÃ­sticas"
+  },
+  {
+      "id": 22,
+      "category": "CafÃ©s"
+  },
+  {
+      "id": 18,
+      "category": "Hoteles y Hospedaje"
+  },
+  {
+      "id": 20,
+      "category": "Postres y Dulces"
+  },
+  {
+      "id": 17,
+      "category": "Productos OrgÃ¡nicos"
+  },
+  {
+      "id": 16,
+      "category": "Restaurantes"
+  },
+  {
+      "id": 19,
+      "category": "Salud & Bienestar"
+  },
+  {
+      "id": 21,
+      "category": "Servicios Express"
+  },
+  {
+      "id": 14,
+      "category": "Surfear"
+  },
+  {
+      "id": 15,
+      "category": "Tiendas"
+  },
+  {
+      "id": 8,
+      "category": "Transporte"
+  }
+]
+
+const en = [
+    {
+        "id": 6,
+        "category": "Cafe"
+    },
+    {
+        "id": 9,
+        "category": "Delivery"
+    },
+    {
+        "id": 11,
+        "category": "Desserts & Sweets"
+    },
+    {
+        "id": 10,
+        "category": "Health & Wellness"
+    },
+    {
+        "id": 1,
+        "category": "Hotel & Accomodations"
+    },
+    {
+        "id": 12,
+        "category": "Organic Products"
+    },
+    {
+        "id": 2,
+        "category": "Restaurant"
+    },
+    {
+        "id": 3,
+        "category": "Retail"
+    },
+    {
+        "id": 4,
+        "category": "Surfing"
+    },
+    {
+        "id": 5,
+        "category": "Tourism Activities"
+    },
+    {
+        "id": 7,
+        "category": "Transportation"
+    }
+]
+
+const categories = {
+    es,
+    en,
+}
+
 exports.handler = async function (event, context) {
   let inputData
 
@@ -28,6 +127,56 @@ exports.handler = async function (event, context) {
     return getError(400, 'At least one cateogry is required')
   }
 
+  const newCategories = [...inputData.categories]
+
+  if(newCategories.indexOf(6) !== -1) {
+    newCategories.push(22)
+  }
+
+  if(newCategories.indexOf(9) !== -1) {
+    newCategories.push(21)
+  }
+
+  if(newCategories.indexOf(11) !== -1) {
+    newCategories.push(20)
+  }
+
+  if(newCategories.indexOf(10) !== -1) {
+    newCategories.push(19)
+  }
+
+  if(newCategories.indexOf(1) !== -1) {
+    newCategories.push(18)
+  }
+
+  if(newCategories.indexOf(12) !== -1) {
+    newCategories.push(17)
+  }
+
+  if(newCategories.indexOf(2) !== -1) {
+    newCategories.push(16)
+  }
+
+  if(newCategories.indexOf(3) !== -1) {
+    newCategories.push(15)
+  }
+
+  if(newCategories.indexOf(4) !== -1) {
+    newCategories.push(14)
+  }
+
+  if(newCategories.indexOf(5) !== -1) {
+    newCategories.push(13)
+  }
+
+  if(newCategories.indexOf(7) !== -1) {
+    newCategories.push(8)
+  }
+
+  const finalCategories = [...new Set(newCategories)]
+
+  console.log(finalCategories)
+
   const postData = { 
     data: {
       approved: false,
@@ -38,7 +187,7 @@ exports.handler = async function (event, context) {
           lng: inputData.coordinates.longitude,
         }
       },
-      categories: inputData.categories,
+      categories: finalCategories,
       Phone: inputData.phone,
       Website: inputData.website,
       Description: inputData.description,
