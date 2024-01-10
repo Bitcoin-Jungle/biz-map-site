@@ -55,6 +55,10 @@ const enCats = [
         "category": "Cafe"
     },
     {
+        "id": 27,
+        "category": "Car wash "
+    },
+    {
         "id": 9,
         "category": "Delivery"
     },
@@ -69,6 +73,10 @@ const enCats = [
     {
         "id": 1,
         "category": "Hotel & Accomodations"
+    },
+    {
+        "id": 25,
+        "category": "Nursery and Garden Center"
     },
     {
         "id": 12,
@@ -159,6 +167,14 @@ const main = async () => {
 
 		if(newCategories.indexOf(7) !== -1) {
 			newCategories.push(8)
+		}
+
+		if(newCategories.indexOf(25) !== -1) {
+		  	newCategories.push(26)
+		}
+
+		if(newCategories.indexOf(27) !== -1) {
+		    newCategories.push(28)
 		}
 
 		const categories = [...new Set(newCategories)]

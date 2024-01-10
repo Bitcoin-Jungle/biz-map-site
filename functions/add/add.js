@@ -6,15 +6,19 @@ const axios = require("axios")
 const es = [
   {
       "id": 13,
-      "category": "Actividades TurÃ­sticas"
+      "category": "Actividades Turísticas"
   },
   {
       "id": 22,
-      "category": "CafÃ©s"
+      "category": "Cafés"
   },
   {
       "id": 18,
       "category": "Hoteles y Hospedaje"
+  },
+  {
+      "id": 28,
+      "category": "Lavacarros "
   },
   {
       "id": 20,
@@ -22,7 +26,7 @@ const es = [
   },
   {
       "id": 17,
-      "category": "Productos OrgÃ¡nicos"
+      "category": "Productos Orgánicos"
   },
   {
       "id": 16,
@@ -41,6 +45,10 @@ const es = [
       "category": "Surfear"
   },
   {
+      "id": 26,
+      "category": "Tienda de viveros y jardinería"
+  },
+  {
       "id": 15,
       "category": "Tiendas"
   },
@@ -54,6 +62,10 @@ const en = [
     {
         "id": 6,
         "category": "Cafe"
+    },
+    {
+        "id": 27,
+        "category": "Car wash "
     },
     {
         "id": 9,
@@ -70,6 +82,10 @@ const en = [
     {
         "id": 1,
         "category": "Hotel & Accomodations"
+    },
+    {
+        "id": 25,
+        "category": "Nursery and Garden Center"
     },
     {
         "id": 12,
@@ -171,6 +187,14 @@ exports.handler = async function (event, context) {
 
   if(newCategories.indexOf(7) !== -1) {
     newCategories.push(8)
+  }
+
+  if(newCategories.indexOf(25) !== -1) {
+    newCategories.push(26)
+  }
+
+  if(newCategories.indexOf(27) !== -1) {
+    newCategories.push(28)
   }
 
   const finalCategories = [...new Set(newCategories)]
