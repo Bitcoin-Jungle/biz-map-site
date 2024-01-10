@@ -147,9 +147,9 @@ function App() {
           </header>
         }
         {categories.length > 0 && (showCategories || width > 700) ?
-          <div id="categories">
+          <div id="categories" className={(isFromBJ() ? "mobileApp" : "")}>
             {showCategories &&
-              <a onClick={() => { setShowCategories(false) }}>X</a>
+              <a onClick={() => { setShowCategories(false) }}><b>X</b></a>
             }
             <ul className="w-48 text-sm text-gray-900 rounded-lg">
               {categories.map((el) => {
@@ -172,8 +172,8 @@ function App() {
             </ul>
           </div>
         : 
-          <div id="categoriesSlider">
-            <a onClick={() => { setShowCategories(true) }}>&gt;</a>
+          <div id="categoriesSlider" className={(isFromBJ() ? "mobileApp" : "")}>
+            <a onClick={() => { setShowCategories(true) }}><b>&gt;</b></a>
           </div>
         }
       </div>
