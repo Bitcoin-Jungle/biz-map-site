@@ -15,6 +15,8 @@ const en = {
 	optional: "Optional",
 	cancel: "Cancel",
 	reportDescription: "Description of Problem",
+	search: "Search",
+	close: "Close",
 }
 
 export default en
