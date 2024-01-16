@@ -260,7 +260,7 @@ function App() {
       </div>
       <div id="footer">
         <footer>
-          {!isFromBJ() && 
+          {!isFromBJ() && !showCategories &&
             <div>
               <a href="https://apps.apple.com/us/app/bitcoin-jungle/id1600313979">
                 <img src="https://pay.bitcoinjungle.app/apple-app-store.png" />
@@ -271,9 +271,12 @@ function App() {
               <div style={{height: "5px"}}>&nbsp;</div>
             </div>
           }
-          <button onClick={() => { setAddPinToMap(true) }} className="shadow bg-purple-500 focus:shadow-outline focus:outline-none text-white font-bold py-1 px-1 rounded">
-            {localized.addToMap}
-          </button>
+
+          {!showCategories &&
+            <button onClick={() => { setAddPinToMap(true) }} className="shadow bg-purple-500 focus:shadow-outline focus:outline-none text-white font-bold py-1 px-1 rounded">
+              {localized.addToMap}
+            </button>
+          }
         </footer>
       </div>
 
