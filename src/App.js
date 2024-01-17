@@ -240,9 +240,12 @@ function App() {
               </li>
               <li className="w-full text-gray-900 px-4 py-2 border-b border-gray-400">
                 <b>{localized.website} </b>
-                <a target="_blank" href={selectedItem.website}>
+                {/*<a target="_blank" href={selectedItem.website}>
                   {selectedItem.website ? selectedItem.website.substr(0, 30) : ""}
-                </a>
+                </a>*/}
+                <span>
+                  {selectedItem.website ? selectedItem.website.substr(0, 30) : ""}
+                </span>
               </li>
               <li className="w-full text-gray-900 px-4 py-2 border-b border-gray-400">
                 <b>{localized.description} </b>
