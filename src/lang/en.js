@@ -17,6 +17,7 @@ const en = {
 	reportDescription: "Description of Problem",
 	search: "Search",
 	close: "Close",
+	pasted: "We have pasted the link to your clipboard. Please use your web browser and paste the link.",
 }
 
 export default en

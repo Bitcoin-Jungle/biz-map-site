@@ -17,6 +17,7 @@ const es = {
 	reportDescription: "Descripción del problema",
 	search: "Buscar",
 	close: "Cerrar",
+	pasted: "Hemos pegado el enlace a su portapapeles. Utilice su navegador web y pegue el enlace.",
 }
 
 export default es

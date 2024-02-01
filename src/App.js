@@ -125,6 +125,16 @@ function App() {
     }
   }
 
+  const navigateTo = (url) => {
+    if(isFromBJ()) {
+      navigator.clipboard.writeText(url)
+      alert(localized.pasted)
+      return
+    }
+
+    window.open(url, '_blank')
+  }
+
   useEffect(() => {
     getToken()
   }, [])
@@ -240,14 +250,11 @@ function App() {
               </li>
               <li className="w-full text-gray-900 px-4 py-2 border-b border-gray-400">
                 <b>{localized.website} </b>
-                {/*<a target="_blank" href={selectedItem.website}>
+                <a href="#" onClick={() => navigateTo(selectedItem.website)}>
                   {selectedItem.website ? selectedItem.website.substr(0, 30) : ""}
-                </a>*/}
-                <span>
-                  {selectedItem.website ? selectedItem.website.substr(0, 30) : ""}
-                </span>
+                </a>
               </li>
-              <li className="w-full text-gray-900 px-4 py-2 border-b border-gray-400">
+              <li className="w-full text-gray-900 px-4 py-2 border-b border-gray-400" style={{whiteSpace: "pre-line"}}>
                 <b>{localized.description} </b>
                 <br />
                 {selectedItem.description}
