@@ -205,6 +205,10 @@ exports.handler = async function (event, context) {
     newCategories.push(28)
   }
 
+  if(newCategories.indexOf(29) !== -1) {
+    newCategories.push(30)
+  }
+
   const finalCategories = [...new Set(newCategories)]
 
   console.log(finalCategories)
