@@ -41,6 +41,10 @@ const es = [
       "category": "Servicios Express"
   },
   {
+      "id": 30,
+      "category": "Servicios Legales"
+  },
+  {
       "id": 14,
       "category": "Surfear"
   },
@@ -74,6 +78,10 @@ const en = [
     {
         "id": 11,
         "category": "Desserts & Sweets"
+    },
+    {
+        "id": 29,
+        "category": "Legal Services"
     },
     {
         "id": 10,
