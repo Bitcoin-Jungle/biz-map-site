@@ -45,6 +45,10 @@ const es = [
       "category": "Servicios Legales"
   },
   {
+      "id": 32,
+      "category": "Servicios",
+  },
+  {
       "id": 14,
       "category": "Surfear"
   },
@@ -106,6 +110,10 @@ const en = [
     {
         "id": 3,
         "category": "Retail"
+    },
+    {
+        "id": 31,
+        "category": "Services",
     },
     {
         "id": 4,
@@ -207,6 +215,70 @@ exports.handler = async function (event, context) {
 
   if(newCategories.indexOf(29) !== -1) {
     newCategories.push(30)
+  }
+
+  if(newCategories.indexOf(31) !== -1) {
+    newCategories.push(32)
+  }
+
+  if(newCategories.indexOf(22) !== -1) {
+    newCategories.push(6)
+  }
+
+  if(newCategories.indexOf(21) !== -1) {
+    newCategories.push(9)
+  }
+
+  if(newCategories.indexOf(20) !== -1) {
+    newCategories.push(11)
+  }
+
+  if(newCategories.indexOf(19) !== -1) {
+    newCategories.push(10)
+  }
+
+  if(newCategories.indexOf(18) !== -1) {
+    newCategories.push(1)
+  }
+
+  if(newCategories.indexOf(17) !== -1) {
+    newCategories.push(12)
+  }
+
+  if(newCategories.indexOf(16) !== -1) {
+    newCategories.push(2)
+  }
+
+  if(newCategories.indexOf(15) !== -1) {
+    newCategories.push(3)
+  }
+
+  if(newCategories.indexOf(14) !== -1) {
+    newCategories.push(4)
+  }
+
+  if(newCategories.indexOf(13) !== -1) {
+    newCategories.push(5)
+  }
+
+  if(newCategories.indexOf(8) !== -1) {
+    newCategories.push(7)
+  }
+
+  if(newCategories.indexOf(26) !== -1) {
+    newCategories.push(25)
+  }
+
+  if(newCategories.indexOf(28) !== -1) {
+    newCategories.push(27)
+  }
+
+  if(newCategories.indexOf(30) !== -1) {
+    newCategories.push(29)
+  }
+
+  if(newCategories.indexOf(32) !== -1) {
+    newCategories.push(31)
   }
 
   const finalCategories = [...new Set(newCategories)]
