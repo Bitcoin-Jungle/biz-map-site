@@ -29,6 +29,21 @@ export function buildApp(): FastifyInstance {
     void app.register(fastifyStatic, {
       root: distRoot,
       prefix: '/',
+      // Serve .br/.gz siblings produced at build time (scripts/precompress.mjs)
+      // when the client accepts them — brotli at zero runtime cost.
+      preCompressed: true,
+      setHeaders: (res, pathName) => {
+        if (pathName.includes('/assets/')) {
+          // Vite content-hashed files: cache forever.
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        } else if (pathName.endsWith('.html')) {
+          // index.html (and the SPA fallback) must always revalidate.
+          res.setHeader('Cache-Control', 'no-cache');
+        } else {
+          // fonts, logo, manifest, favicon (stable but unhashed): 1 day.
+          res.setHeader('Cache-Control', 'public, max-age=86400');
+        }
+      },
     });
   }
 

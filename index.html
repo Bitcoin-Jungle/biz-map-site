@@ -12,6 +12,11 @@
     <link rel="apple-touch-icon" href="/logo192.png" />
     <link rel="manifest" href="/manifest.json" />
 
+    <!-- Warm up connections to the map lib + data APIs (TLS handshake in parallel). -->
+    <link rel="preconnect" href="https://cdn.apple-mapkit.com" crossorigin />
+    <link rel="preconnect" href="https://api.btcmap.org" crossorigin />
+    <link rel="dns-prefetch" href="https://cdn.static.btcmap.org" />
+
     <!-- Type: self-hosted Bricolage Grotesque (display only, variable woff2, latin).
          Body uses the system stack. font-display:swap keeps text non-blocking. -->
     <link rel="preload" as="font" type="font/woff2" href="/fonts/bricolage.woff2" crossorigin />

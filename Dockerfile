@@ -6,7 +6,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
-RUN npm run build
+RUN npm run build && node scripts/precompress.mjs
 # Drop build-only deps (vite, typescript, @types, tailwind/postcss, etc.) so the
 # runtime image carries only prod deps + tsx. better-sqlite3's prebuilt native
 # binary is already in node_modules and survives the prune.
