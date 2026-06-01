@@ -10,6 +10,7 @@
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
@@ -25,3 +26,11 @@ yarn-error.log*
 
 # Local Netlify folder
 .netlify
+.gstack/
+
+# Local SQLite submission queue (DB_PATH default ./data) — never commit user submissions
+/data
+*.db
+*.db-journal
+*.db-wal
+*.db-shm

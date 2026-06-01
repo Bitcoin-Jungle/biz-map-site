@@ -1,70 +1,71 @@
-# Getting Started with Create React App
+# Bitcoin Jungle Merchant Map
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Vite, React, and TypeScript single-page app for the Bitcoin Jungle merchant map. The browser reads the public BTC Map API directly. A thin Fastify backend serves the built SPA, signs Apple MapKit tokens, stores a SQLite moderation queue for merchant submissions, sends moderation emails, and forwards approved submissions to the BTC Map Import RPC.
 
-## Available Scripts
+## Local Development
 
-In the project directory, you can run:
+Install dependencies:
 
-### `npm start`
+```sh
+npm install
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Run the frontend and API in separate terminals:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```sh
+npm run dev
+npm run server:dev
+```
 
-### `npm test`
+The Vite dev server is used for the SPA, and the API must also be running for endpoints such as `/api/token`.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+To test the integrated production-style server locally:
 
-### `npm run build`
+```sh
+npm run build
+npm run start
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+That serves `./dist` and the `/api` routes on `http://localhost:8080` by default.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Environment
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Use `.env.example` as the reference. Do not commit real secrets.
 
-### `npm run eject`
+- `APPLE_MAPS_KEY`: Apple MapKit private key PEM, with newlines escaped as `\n`.
+- `APPLE_TEAM_ID`: Apple developer team ID used as the MapKit JWT issuer.
+- `MAPS_KEY_ID`: Apple MapKit key ID used as the JWT `kid`.
+- `SITE_ORIGIN`: Browser origin allowed in the MapKit JWT.
+- `SENDGRID_API_KEY`: SendGrid API key for moderation email. If blank, development logs email output.
+- `APPROVE_KEY`: Shared secret required by approval and rejection moderation links.
+- `IMPORT_TOKEN`: BTC Map Import RPC bearer token. Keep server-side only.
+- `BTCMAP_RPC_URL`: BTC Map JSON-RPC endpoint.
+- `PUBLIC_URL`: Public base URL used when building moderation links.
+- `PORT`: Fastify HTTP port. Defaults to `8080`.
+- `DB_PATH`: SQLite database path for the submission queue. Defaults to `./data/submissions.db` locally and `/app/data/submissions.db` in Docker.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Docker
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Build the image:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```sh
+docker build -t bj-map .
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Run it:
 
-## Learn More
+```sh
+docker run -p 8080:8080 --env-file .env -v bjmap-data:/app/data bj-map
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+The `bjmap-data` volume persists the SQLite submission queue database.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Deployment
 
-### Code Splitting
+The production target is a single container on Bitcoin Jungle infrastructure, fronted by Caddy for automatic TLS at `maps.bitcoinjungle.app`. A minimal `Caddyfile` is included and reverse-proxies to the app on port `8080`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+A pure static host such as Cloudflare Pages is not sufficient on its own because MapKit token signing and submission moderation must run server-side. If static or edge hosting is desired later, the API would need to move to serverless or edge functions, and `IMPORT_TOKEN` must remain server-side.
 
-### Analyzing the Bundle Size
+## Cutover
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Keep BJ's legacy `/api/list` running read-only until the new site and mobile clients are verified. The full migration plan lives in `PLAN.md`.

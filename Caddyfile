@@ -1,0 +1,10 @@
+maps.bitcoinjungle.app {
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:8080
+}
+
+# Local testing:
+# http://localhost {
+# 	encode zstd gzip
+# 	reverse_proxy 127.0.0.1:8080
+# }
