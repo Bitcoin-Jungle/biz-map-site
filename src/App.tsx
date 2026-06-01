@@ -388,10 +388,10 @@ function App() {
         {!isFromBJ() && (
           <header className="header-brand">
             <a href="https://bitcoinjungle.app" target="_blank" rel="noreferrer">
-              <img
-                src="https://storage.googleapis.com/bitcoin-jungle-branding/logo/web/logo-web.png"
-                alt="Bitcoin Jungle"
-              />
+              <picture>
+                <source srcSet="/logo-mark.webp" type="image/webp" />
+                <img src="/logo-mark.png" alt="Bitcoin Jungle" width={38} height={38} />
+              </picture>
               <span>{localized.title}</span>
             </a>
           </header>
