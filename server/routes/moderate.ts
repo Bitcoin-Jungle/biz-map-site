@@ -17,19 +17,43 @@ function parseId(value: string | undefined): number | null {
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
+// Ensure a user-entered website is a valid http(s) URL. BTC Map's PlaceSubmission
+// `website()` getter validates the scheme and silently drops anything that isn't
+// http/https (see btcmap-api src/db/main/place_submission/schema.rs), so a bare
+// "example.com" would be discarded. Prepend https:// when no scheme is present.
+function normalizeUrl(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return trimmed;
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
 export function mapPayloadToPlace(payload: AddPayload): Record<string, unknown> {
-  // BTC Map's submit_place schema may need tuning as the Import RPC settles.
-  // Keep the BJ form fields intact in tags so no submitted context is lost.
+  // Schema verified against btcmap-api source (src/rpc/import/submit_place.rs,
+  // 2026-06-02): submit_place takes top-level required `category` (free string) +
+  // `name`, `lat`, `lon`, and an optional `extra_fields` object. There is no `tags`
+  // field. `extra_fields` keys are consumed by named getters in PlaceSubmission —
+  // recognized ones we populate: description, phone, website (the rest: address,
+  // opening_hours, email, twitter/facebook/instagram/line, icon_url).
+  //
+  // NOTE: ownership/payment is NOT carried in extra_fields. `payment_provider`
+  // ("bitcoin-jungle") and the OSM tag `payment:bitcoin-jungle=yes` are derived from
+  // the `origin` via the vendor table (vendor.rs) when the place is added to OSM — so
+  // we deliberately do NOT send a `payment:bitcoin-jungle` extra_field (it's inert and
+  // would just clutter the human-facing Gitea import ticket). `categories` (plural) is
+  // kept only as a free-text hint for the OSM editor who processes the ticket.
+  const categories = payload.categories.map(String);
+  const extra_fields: Record<string, string> = {};
+  if (categories.length > 1) extra_fields.categories = categories.join(';');
+  if (payload.phone) extra_fields.phone = payload.phone;
+  if (payload.website) extra_fields.website = normalizeUrl(payload.website);
+  if (payload.description) extra_fields.description = payload.description;
+
   return {
     name: payload.name,
     lat: payload.coordinates.latitude,
     lon: payload.coordinates.longitude,
-    tags: {
-      categories: payload.categories,
-      phone: payload.phone ?? '',
-      website: payload.website ?? '',
-      description: payload.description ?? '',
-    },
+    category: categories[0] ?? 'other',
+    extra_fields,
   };
 }
 

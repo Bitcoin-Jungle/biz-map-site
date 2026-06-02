@@ -8,32 +8,33 @@ Status legend: 🔴 blocked on external input · 🟡 needs work · ⚪ cosmetic
 
 ---
 
-## 1. 🔴 `IMPORT_TOKEN` not set — approve → Import RPC is inert
+## 1. ✅ RESOLVED — `IMPORT_TOKEN` write path is live
 
 **Impact:** Approving an `add` submission calls BTC Map's Import RPC (`submit_place`),
 which requires a Bearer token scoped to import origin `bitcoin-jungle`.
 
-**Status (verified live 2026-06-01):** token is in the env and **authenticates**; reads work
-(`get_submitted_place` returns a clean "not found" for unknown ids). **Writes are blocked
-upstream:** `submit_place` returns `"token is not allowed to access import origin
-'bitcoin-jungle'"` because the `bitcoin-jungle` vendor isn't registered in btcmap-api yet.
+**Status (verified live 2026-06-02):** btcmap-api PR #94 shipped. The token authenticates
+**and is authorized for origin `bitcoin-jungle`** — the prior `"token is not allowed to
+access import origin 'bitcoin-jungle'"` error is gone. Full round-trip confirmed against
+`api.btcmap.org/rpc`: `submit_place` creates a submission (returns `{id, origin, external_id}`),
+`get_submitted_place` returns it, `revoke_submitted_place` sets `revoked: true`. Test
+submissions (15478–15481) were created and revoked during verification — nothing left behind.
 
-**Blocked on:** btcmap-api PR #94 (`feat: add square-test and bitcoin-jungle vendors`,
-`src/db/main/place_submission/vendor.rs`) being **merged AND deployed to `api.btcmap.org`**.
-It registers `origin: "bitcoin-jungle"`, `payment_provider: "bitcoin-jungle"`,
-`payment_tag_name: "payment:bitcoin-jungle"`, gitea label `1552`.
-https://github.com/teambtcmap/btcmap-api/pull/94
+**IMPORTANT — what `submit_place` actually does (verified from btcmap-api source):** it does
+**not** publish a place to the map. It writes a row to the `place_submission` queue. The
+`sync_submitted_places` job then opens a **Gitea ticket** (label `1552` for bitcoin-jungle)
+containing our `name`/`category`/`extra_fields`/coords as **text for a human OSM contributor**,
+who manually adds the merchant to OpenStreetMap with `currency:XBT` + proper tags. Only after
+that, and the next OSM→BTC Map sync, does the pin appear on `/v4/places`. So "approve an add"
+= "queue a human-reviewed OSM import task," not an instant publish. The `submit_place` `id` is
+a submission id in a **separate id space** from public `/v4/places/{id}`.
 
-**Where (ours, already correct):** `server/lib/importRpc.ts` sends `origin: "bitcoin-jungle"`
-+ `Bearer ${IMPORT_TOKEN}`; token lives in `~/bj-map/.env` on the VM and local `.env`
-(both gitignored). Nothing to change on our side.
+**Where (ours):** `server/lib/importRpc.ts` sends `origin: "bitcoin-jungle"` +
+`Bearer ${IMPORT_TOKEN}`; token lives in `~/bj-map/.env` on the VM and local `.env`
+(both gitignored). Field mapping verified + corrected — see #3.
 
-**To resolve:** wait for PR #94 to ship, then re-run the RPC schema test (Phase 2:
-`submit_place` → `get_submitted_place` → `revoke_submitted_place` with a `test:` external_id)
-to finalize the field mapping (#3).
-
-**Done when:** approving an `add` on staging creates the place under `origin=bitcoin-jungle`
-and `get_submitted_place("sub:<id>")` returns it.
+**Done:** approving an `add` now creates a `bitcoin-jungle` submission and
+`get_submitted_place(origin, external_id)` returns it; from there it's a human OSM workflow.
 
 ---
 
@@ -54,11 +55,17 @@ marking this), the verify/report approval branch.
 **To resolve:**
 1. Complete the re-import under `bitcoin-jungle`.
 2. Implement `resolveOwnership`: map a BTC Map place id → our namespaced `external_id`
-   if BJ owns it, else `null`. **Likely signal:** per PR #94 the `bitcoin-jungle` vendor sets
-   `payment_provider: "bitcoin-jungle"` and tag `payment:bitcoin-jungle` on imported places —
-   check whether `/v4/places/{id}` exposes `payment_provider` or `osm:payment:bitcoin-jungle`;
-   if so, ownership is detectable client-side too (also lets the web read-side flag BJ pins).
-   Otherwise reconcile via `get_submitted_place`.
+   if BJ owns it, else `null`. **Read-side signal confirmed (live 2026-06-02):** the read API
+   exposes a first-class **`payment_provider`** field (8,112 places; current values `square`,
+   `coinos`). PR #94 registers the `bitcoin-jungle` vendor with
+   `payment_provider: "bitcoin-jungle"`, so once BJ merchants are imported they surface
+   `payment_provider: "bitcoin-jungle"` on `/v4/places` — ownership is detectable client-side
+   without an RPC call. **Note:** `osm:payment:bitcoin-jungle` is NOT a read field (0 places);
+   the `extra_fields["payment:bitcoin-jungle"]` we write at submit time is queue-internal and
+   does not surface on the read API. **Also note:** submitted places are NOT on `/v4/places`
+   until the import pipeline processes them (the submit `id` is a separate id space from public
+   place ids). So pre-import, the only ownership check is
+   `get_submitted_place(origin, external_id)`; post-import, use `payment_provider`.
 3. On approve: BJ-owned verify → `submit_place` (refresh `verified_at`); BJ-owned report →
    `revoke_submitted_place`; non-owned → keep current notify-only behavior.
 
@@ -67,22 +74,56 @@ a non-owned one still degrades to notify without error.
 
 ---
 
-## 3. 🟡 `submit_place` field mapping is provisional
+## 3. ✅ RESOLVED — `submit_place` field mapping verified against live schema
 
-**Impact:** `mapPayloadToPlace()` maps our add-form fields to the `submit_place` params
-as a best guess (`{name, lat, lon, tags:{categories,phone,website,description}}`). The exact
-schema BTC Map's Import RPC expects (tag names, structure, required fields) has not been
-validated against the live endpoint — it was only exercised against a mocked RPC in tests.
+**Verified live 2026-06-02.** The real `submit_place` schema (confirmed by reading places
+back via `get_submitted_place`):
 
-**Where:** `server/routes/moderate.ts` — `mapPayloadToPlace()` (has a comment flagging this);
-`server/lib/importRpc.ts`.
+Confirmed against btcmap-api source (`src/rpc/import/submit_place.rs`, `place_submission/`):
 
-**To resolve:** once `IMPORT_TOKEN` exists (#1), submit a test place against staging/live,
-confirm it lands correctly (name, coords, categories, payment tags, contact), and adjust the
-mapping. Coordinate tag conventions with the BTC Map team.
+```jsonc
+{
+  "origin": "bitcoin-jungle",      // required
+  "external_id": "sub:<id>",       // required, unique per origin (idempotent upsert)
+  "name": "string",                // required
+  "lat": 9.382, "lon": -84.129,    // required numbers
+  "category": "restaurant",        // REQUIRED, singular free string, no server enum
+  "extra_fields": {                // optional object; only recognized keys are consumed
+    "phone": "...", "website": "https://...", "description": "...",
+    "categories": "restaurant;cafe"   // hint only — see notes
+  }
+}
+```
 
-**Done when:** a submitted test merchant appears on BTC Map with all fields intact and correct
-OSM-style tags.
+Key corrections from the old guess: `category` is a **required top-level singular string**
+(was sent as `tags.categories` array → `"missing field category"`); there is **no `tags`
+field** — extra data must go in **`extra_fields`**. `extra_fields` keys are read by named
+getters on `PlaceSubmission` — recognized: `description, phone, website, address,
+opening_hours, email, twitter, facebook, instagram, line, icon_url`. `website`/social keys
+are **validated as http(s) URLs and silently dropped if invalid**, so the mapping now
+normalizes bare URLs (`example.com` → `https://example.com`).
+
+**Two fields removed after reading the source:**
+- `payment:bitcoin-jungle` — **inert.** `payment_provider` and the OSM tag
+  `payment:bitcoin-jungle=yes` are derived from the **`origin`** via the vendor table
+  (`vendor.rs`), not from any extra_field. Sending it just cluttered the import ticket.
+- `categories` kept only as a **free-text hint** for the human OSM editor (the ticket dumps
+  `extra_fields` verbatim); it is not a structured field.
+
+**Where (fixed):** `server/routes/moderate.ts` — `mapPayloadToPlace()` + `normalizeUrl()`.
+
+**Done:** schema validated against source and live RPC; mapping emits exactly the recognized
+fields.
+
+**Note (read-side category — corrected mechanism):** the submit `category` is **never**
+read-exposed (0 of 28,035 `/v4/places` carry a top-level `category`) and does **not** drive
+the eventual map icon. `submit_place` does not publish — it queues a Gitea ticket; a human
+adds the place to **OSM**, and BTC Map **generates** the icon/category from the resulting OSM
+tags (`generate_element_icons` / `generate_element_categories`). So our `category` is just a
+hint for that human, and its vocabulary need not match BTC Map's `icon` set. The real concern
+for the ~610-merchant bulk re-import is operational, not schematic: each submission becomes a
+human OSM task. **Coordinate a bulk path with the BTC Map team** rather than relying on 610
+individual tickets. Tracked in `HANDOFF_btcmap_submit_schema.md`.
 
 ---
 
