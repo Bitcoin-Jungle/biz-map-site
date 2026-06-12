@@ -66,11 +66,50 @@ marking this), the verify/report approval branch.
    until the import pipeline processes them (the submit `id` is a separate id space from public
    place ids). So pre-import, the only ownership check is
    `get_submitted_place(origin, external_id)`; post-import, use `payment_provider`.
-3. On approve: BJ-owned verify → `submit_place` (refresh `verified_at`); BJ-owned report →
-   `revoke_submitted_place`; non-owned → keep current notify-only behavior.
+3. On approve — **redesigned after reading btcmap-api source (2026-06-02); the original
+   `submit_place`/`revoke_submitted_place` plan was wrong, see below.**
 
-**Done when:** approving a verify/report on a BJ-owned pin updates BTC Map via RPC, and
-a non-owned one still degrades to notify without error.
+### How BTC Map actually models verify/report (authoritative, from source)
+
+Read `src/service/overpass.rs` + `src/service/element.rs`:
+
+- **Verification = OSM date tags.** A place is "verified" iff its OSM tags carry a parseable
+  date in `survey:date`, `check_date`, or `check_date:currency:XBT` (most recent wins —
+  `verification_date()`). "Up to date" = verified **< 365 days** ago (`up_to_date()`). The API
+  auto-generates issues from this: `not_verified` (no date), `outdated` (>365d), `outdated_soon`.
+- **These read from `overpass_data` (OSM-synced tags).** `set_element_tag` writes BTC Map's
+  *own* tag overlay, which does **not** feed `verification_date()` — so you **cannot** refresh
+  verification through the API. It requires a real **OSM edit** bumping `check_date:currency:XBT`.
+- **There is no verify or report RPC.** What exists: `add_element_comment(element_id, comment)`
+  — attach a free-text note to a place (native "report/leave a note"; also a paywalled variant).
+  Issues are derived, not user-submitted. `submit_place` only writes the import **queue**
+  (→ Gitea ticket → human OSM entry); it cannot touch a live place's `verified_at`.
+
+### Consequence — the current `approveOwnedTarget` is wrong (and schema-invalid)
+
+`server/routes/moderate.ts` calls `submitPlace({ external_id, target_place_id })` for verify
+and `revokeSubmittedPlace(externalId)` for report. Both are wrong: `submit_place` requires
+`lat/lon/category/name` (would throw `missing field lat`) and only touches the queue;
+`revoke_submitted_place` only works on *our own* submissions, not an arbitrary reported pin.
+The branch is currently dead (gated behind `resolveOwnership() === null`), so it has never run.
+
+### Redesign (matches BTC Map; this is the "option b" path)
+
+- **Report** → `add_element_comment(element_id = <btcmap place id>, comment = <report text>)`
+  — instant, native, visible on BTC Map. Keep admin-notify as a backstop for removals
+  (we can't delete a pin we don't own). Confirm whether plain `add_element_comment` needs an
+  admin role or only the paywalled variant is open — test with our token or ask BTC Map.
+- **Verify** → there is no API shortcut. For **BJ-owned** pins, route the approval through the
+  **same OSM-edit / Gitea-ticket pipeline as adds** to bump `check_date:currency:XBT` (durably,
+  the re-import should carry a fresh date). For **non-owned** pins, `add_element_comment`
+  ("user reports still accepting bitcoin as of <date>") and/or notify. Drop the `submit_place`
+  call entirely.
+- **Inputs:** `add_element_comment` needs the **numeric BTC Map element id**; our verify/report
+  payloads carry `target_place_id` as a string — make sure it's the `/v4/places` numeric id.
+
+**Done when:** report approval posts a comment to the BTC Map element (or notifies on failure);
+verify approval either files an OSM `check_date` refresh (BJ-owned) or comments/notifies
+(non-owned); no code path calls `submit_place` with a target id.
 
 ---
 
